@@ -5,13 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
+    "test:smoke": "playwright test --project=smoke",
     "test:ui": "playwright test tests/ui",
     "test:api": "playwright test tests/api",
     "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:codegen": "playwright codegen http://localhost:3000",
     "test:report": "playwright show-report",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "setup": "npm ci && npx playwright install --with-deps"
+    "setup": "npm ci && npx playwright install --with-deps",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf playwright-report test-results node_modules"
   },
   "keywords": [
     "playwright",

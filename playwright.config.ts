@@ -24,5 +24,11 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'smoke',
+      testMatch: /.*\.spec\.ts$/,
+      grep: /@smoke/,
+      use: { ...devices['Desktop Chrome'] },
+    },
   ],
 });

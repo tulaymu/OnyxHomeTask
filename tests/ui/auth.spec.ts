@@ -36,7 +36,7 @@ test.describe('User Authentication', () => {
     await loginPage.logout();
   });
 
-  test('should show error message with invalid credentials', async ({ page }) => {
+  test('error on invalid credentials', async ({ page }) => {
     await loginPage.login(testData.invalidUser.email, testData.invalidUser.password);
     
     await page.waitForTimeout(1000);
@@ -44,7 +44,7 @@ test.describe('User Authentication', () => {
     expect(errorVisible).toBeTruthy();
   });
 
-  test('should not allow login with empty credentials', async ({ page }) => {
+  test('empty login blocked', async ({ page }) => {
     await loginPage.navigateToLogin();
     
     const isDisabled = await loginPage.isLoginButtonDisabled();
@@ -57,7 +57,7 @@ test.describe('User Authentication', () => {
     }
   });
 
-  test('should successfully login with valid credentials', async () => {
+  test('@smoke valid login', async () => {
     await loginPage.login(testData.validUser.email, testData.validUser.password);
     
     const isLoggedIn = await loginPage.isLoggedIn();

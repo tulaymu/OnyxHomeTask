@@ -1,12 +1,6 @@
-# OWASP Juice Shop - Automated Test Suite
+# Juice Shop Test Automation
 
-Automated UI and API tests for OWASP Juice Shop using Playwright and TypeScript.
-
-## Prerequisites
-
-- Node.js (v18+)
-- Docker & Docker Compose
-- npm
+Playwright tests for OWASP Juice Shop - covers UI flows and API endpoints with CI/CD pipeline.
 
 ## Quick Start
 
@@ -16,108 +10,37 @@ cd OnyxHomeTask
 npm ci && npm test
 ```
 
-This will install dependencies, start Juice Shop in Docker, run all tests, and generate a report.
+## What's Inside
 
-## Setup
-
-### Install Dependencies
-
-```bash
-npm ci
-```
-
-### Install Playwright Browsers
-
-```bash
-npx playwright install --with-deps
-```
-
-### Start Juice Shop (Optional)
-
-```bash
-npm run docker:up
-```
-
-The app will be available at `http://localhost:3000`
-
-## Test Strategy
-
-This project follows a **layered testing approach**:
-
-- **API Tests**: Validate backend logic, authentication, data integrity, and error handling
-- **UI Tests**: Verify user experience, visual elements, and end-to-end workflows
-- **Negative Tests**: Ensure proper error handling and security measures
-
-Both UI and API tests cover authentication to validate different layers:
-- API tests check token generation and backend security
-- UI tests verify user-facing forms and error messages
+- **UI Tests** - Login, shopping, checkout flow
+- **API Tests** - Auth, products, basket, checkout endpoints  
+- **CI/CD** - GitHub Actions with Docker
+- **Page Objects** - Clean test structure
+- **Fixtures** - Reusable test data
 
 ## Running Tests
 
-### Run All Tests
 ```bash
-npm test
-```
-
-### Run with Live Demo (if Docker unavailable)
-```bash
-BASE_URL=https://demo.owasp-juice.shop npm test
-```
-
-Note: Live demos may be slow or down. Docker is more reliable.
-
-### Run UI Tests Only
-```bash
-npm run test:ui
-```
-
-### Run API Tests Only
-```bash
-npm run test:api
-```
-
-### Run Tests in Headed Mode
-```bash
-npm run test:headed
-```
-
-### View Report
-```bash
-npm run test:report
+npm test              # all tests
+npm run test:smoke    # critical path only
+npm run test:ui       # UI tests
+npm run test:api      # API tests
+npm run test:headed   # watch tests run
+npm run test:debug    # debug mode
+npm run test:report   # open HTML report
 ```
 
 ## Test Coverage
 
-### UI Tests (6 tests)
+**UI (8 tests)**
+- Authentication (login, errors, validation)
+- Shopping (browse, basket, checkout)
 
-**Authentication** (`tests/ui/auth.spec.ts`):
-- Login with valid credentials
-- Error on invalid credentials (negative)
-- Empty credentials blocked (negative)
-
-**Shopping Flow** (`tests/ui/shopping.spec.ts`):
-- Browse products and view details
-- Navigate to basket page
-- Display products on homepage
-
-### API Tests (11 tests)
-
-**Authentication** (`tests/api/auth.spec.ts`):
-- Get Bearer token on login
-- Access protected endpoint with token
-- Fail with invalid token (negative)
-- Fail without token (negative)
-
-**Products** (`tests/api/products.spec.ts`):
-- Get all products
-- Search products
-- Handle invalid search
-
-**Basket** (`tests/api/basket.spec.ts`):
-- Get basket items with auth
-- Add product with auth
-- Fail without auth (negative)
-- Fail with invalid data (negative)
+**API (14 tests)**  
+- Auth (Bearer tokens, invalid auth)
+- Products (list, search)
+- Basket (add, retrieve, errors)
+- Checkout (wallet, delivery)
 
 ## CI/CD Pipeline
 
@@ -154,70 +77,73 @@ Triggers: push to main/master, PRs, manual dispatch
 
 1. Tests work with latest stable OWASP Juice Shop
 2. API tests create temporary users to avoid conflicts
-3. UI tests use stable selectors (IDs, ARIA labels)
-4. Extended timeouts for Docker startup
-5. Tests run on Chromium by default
-6. Clean state assumed between runs
+## Project Structure
 
-## Future Improvements
+```
+tests/
+├── ui/           # UI tests (login, shopping, checkout)
+├── api/          # API tests (auth, products, basket)
+└── helpers/      # Utils (auth, health checks, cleanup)
 
-### Testing
-- Visual regression testing
-- Data-driven tests with fixtures
-- Performance metrics
-- Full checkout flow
-- Accessibility testing (a11y)
-- Multi-browser testing
+pages/            # Page objects (LoginPage, HomePage)
+fixtures/         # Test data (users, products)
+config/           # Environment settings
+```
 
-### Code Quality
-- ESLint & Prettier
-- Page Object Model pattern
-- Helper utilities for common actions
-- Pre-commit hooks
+## CI/CD Pipeline
 
-### CI/CD
-- Test notifications (Slack/email)
-- Flakiness detection
-- Parallel execution
-- Scheduled runs
-- Test management integration
+GitHub Actions workflow:
+1. Starts Juice Shop in Docker
+2. Runs tests headless
+3. Uploads HTML & JSON reports
 
-### Monitoring
-- Test metrics dashboard
-- Execution time tracking
-- Flakiness monitoring
+## Setup Details
+
+**Requirements:** Node 18+, Docker
+
+If no Docker available:
+```bash
+BASE_URL=https://demo.owasp-juice.shop npm test
+```
+
+## Assumptions
+
+- Fresh Juice Shop (no pre-existing data)
+- Tests create their own users (avoids conflicts)
+- Default port 3000
+- Chrome browser
+
+## With More Time
+
+- Full payment flow testing
+- Visual regression (screenshot diffs)
+- Performance/load testing
+- Multi-browser support (Firefox, Safari)
+- API schema validation  
+- Allure reports
+- Database cleanup hooks
+- Parallel execution optimization
 
 ## Environment Variables
 
-- `BASE_URL`: Override default URL (default: `http://localhost:3000`)
-- `CI`: Set by GitHub Actions for CI-specific behavior (enables retries, headless mode)
-- `TEST_ENV`: Environment to test against (`local`, `docker`, `demo`)
-
-## Known Issues
-
-- Tests may fail if Juice Shop takes longer than 30s to start (increase timeout in playwright.config.ts)
-- Parallel execution might cause race conditions in basket tests (use `--workers=1` for sequential execution)
-- Some UI selectors may break if Juice Shop updates their frontend (Page Object Model helps isolate these changes)
+`BASE_URL` - Juice Shop URL (default: http://localhost:3000)
+`CI` - Enables retries & headless mode
+`TEST_ENV` - Environment: local/docker/demo
 
 ## Troubleshooting
 
-### Docker Issues
+**Docker issues:**
 ```bash
-docker-compose down
-docker-compose up --force-recreate
+docker-compose down && docker-compose up --force-recreate
 ```
 
-### Port 3000 in Use
+**Port 3000 busy:**
 ```bash
 lsof -ti:3000 | xargs kill -9
 ```
 
-### Tests Failing
-1. Check Juice Shop: `curl http://localhost:3000`
-2. View logs: `docker-compose logs`
-3. Run headed: `npm run test:headed`
-4. Check report: `npm run test:report`
-
-## License
-
-Interview project only.
+**Tests failing:**
+- Check app: `curl http://localhost:3000`
+- View logs: `docker-compose logs`
+- Run visually: `npm run test:headed`
+- Check report: `npm run test:report`

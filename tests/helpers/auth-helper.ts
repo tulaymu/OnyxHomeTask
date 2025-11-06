@@ -7,6 +7,7 @@ export interface AuthToken {
   basketId: number;
 }
 
+// Register test user
 export async function registerUser(
   request: APIRequestContext,
   email: string,
@@ -28,6 +29,7 @@ export async function registerUser(
   }).catch(() => {});
 }
 
+// Get auth token from login
 export async function getAuthToken(
   request: APIRequestContext,
   email: string,
@@ -48,6 +50,7 @@ export async function getAuthToken(
   };
 }
 
+// Quick setup - create user and login
 export async function createUserAndGetToken(
   request: APIRequestContext,
   email?: string,
@@ -58,4 +61,26 @@ export async function createUserAndGetToken(
   
   await registerUser(request, userEmail, userPassword);
   return await getAuthToken(request, userEmail, userPassword);
+}
+
+// Cleanup test data
+export async function cleanupBasket(
+  request: APIRequestContext,
+  token: string,
+  basketId: number
+): Promise<void> {
+  try {
+    const basket = await request.get(`${BASE_URL}/rest/basket/${basketId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    const data = await basket.json();
+    if (data.data.Products) {
+      for (const item of data.data.Products) {
+        await request.delete(`${BASE_URL}/api/BasketItems/${item.BasketItem.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+    }
+  } catch {}
 }
