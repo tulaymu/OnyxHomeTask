@@ -1,0 +1,29 @@
+{
+  "name": "onyx-juice-shop-tests",
+  "version": "1.0.0",
+  "description": "Automated UI and API tests for OWASP Juice Shop",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test tests/ui",
+    "test:api": "playwright test tests/api",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "setup": "npm ci && npx playwright install --with-deps"
+  },
+  "keywords": [
+    "playwright",
+    "testing",
+    "automation",
+    "juice-shop"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}
