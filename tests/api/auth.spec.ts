@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { createUserAndGetToken, getAuthToken } from '../helpers/auth-helper';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -10,54 +11,24 @@ test.describe('Authentication API', () => {
     testEmail = `test-${Date.now()}@juice-sh.op`;
     testPassword = 'Password123!';
     
-    await request.post(`${BASE_URL}/api/Users`, {
-      data: {
-        email: testEmail,
-        password: testPassword,
-        passwordRepeat: testPassword,
-        securityQuestion: {
-          id: 1,
-          question: "Your eldest siblings middle name?",
-          createdAt: "2024-01-01",
-          updatedAt: "2024-01-01"
-        },
-        securityAnswer: "test"
-      }
-    });
+    const auth = await createUserAndGetToken(request, testEmail, testPassword);
+    expect(auth.token).toBeTruthy();
   });
 
   test('should authenticate and receive Bearer token', async ({ request }) => {
-    const loginResponse = await request.post(`${BASE_URL}/rest/user/login`, {
-      data: {
-        email: testEmail,
-        password: testPassword
-      }
-    });
+    const auth = await getAuthToken(request, testEmail, testPassword);
     
-    expect(loginResponse.status()).toBe(200);
-    
-    const data = await loginResponse.json();
-    expect(data.authentication).toHaveProperty('token');
-    expect(data.authentication).toHaveProperty('bid');
-    expect(data.authentication.token).toBeTruthy();
-    expect(data.authentication.token).toMatch(/^[\w-]+\.[\w-]+\.[\w-]+$/);
+    expect(auth.token).toBeTruthy();
+    expect(auth.basketId).toBeTruthy();
+    expect(auth.token).toMatch(/^[\w-]+\.[\w-]+\.[\w-]+$/);
   });
 
   test('should use Bearer token to access protected endpoint', async ({ request }) => {
-    const loginResponse = await request.post(`${BASE_URL}/rest/user/login`, {
-      data: {
-        email: testEmail,
-        password: testPassword
-      }
-    });
+    const auth = await getAuthToken(request, testEmail, testPassword);
     
-    const loginData = await loginResponse.json();
-    const token = loginData.authentication.token;
-    const basketId = loginData.authentication.bid;
-    
-    const basketResponse = await request.get(`${BASE_URL}/rest/basket/${basketId}`, {
+    const basketResponse = await request.get(`${BASE_URL}/rest/basket/${auth.basketId}`, {
       headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${auth.token}`
       }
     });
     

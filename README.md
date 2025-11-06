@@ -40,6 +40,18 @@ npm run docker:up
 
 The app will be available at `http://localhost:3000`
 
+## Test Strategy
+
+This project follows a **layered testing approach**:
+
+- **API Tests**: Validate backend logic, authentication, data integrity, and error handling
+- **UI Tests**: Verify user experience, visual elements, and end-to-end workflows
+- **Negative Tests**: Ensure proper error handling and security measures
+
+Both UI and API tests cover authentication to validate different layers:
+- API tests check token generation and backend security
+- UI tests verify user-facing forms and error messages
+
 ## Running Tests
 
 ### Run All Tests
@@ -174,6 +186,18 @@ Triggers: push to main/master, PRs, manual dispatch
 - Test metrics dashboard
 - Execution time tracking
 - Flakiness monitoring
+
+## Environment Variables
+
+- `BASE_URL`: Override default URL (default: `http://localhost:3000`)
+- `CI`: Set by GitHub Actions for CI-specific behavior (enables retries, headless mode)
+- `TEST_ENV`: Environment to test against (`local`, `docker`, `demo`)
+
+## Known Issues
+
+- Tests may fail if Juice Shop takes longer than 30s to start (increase timeout in playwright.config.ts)
+- Parallel execution might cause race conditions in basket tests (use `--workers=1` for sequential execution)
+- Some UI selectors may break if Juice Shop updates their frontend (Page Object Model helps isolate these changes)
 
 ## Troubleshooting
 

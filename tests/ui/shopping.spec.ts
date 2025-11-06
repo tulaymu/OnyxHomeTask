@@ -1,43 +1,36 @@
 import { test, expect } from '@playwright/test';
+import { HomePage } from '../../pages/HomePage';
 
 test.describe('Shopping Flow', () => {
+  let homePage: HomePage;
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    
-    try {
-      await page.locator('button[aria-label="Close Welcome Banner"]').click({ timeout: 3000 });
-    } catch {}
-    
-    try {
-      await page.locator('.cc-dismiss, button:has-text("Me want it!"), button:has-text("Got it!")').first().click({ timeout: 3000 });
-    } catch {}
-    
-    await page.waitForTimeout(500);
+    homePage = new HomePage(page);
+    await homePage.navigate();
+    await homePage.dismissAllPopups();
   });
 
-  test('should browse products and view product details', async ({ page }) => {
-    await page.waitForSelector('.mat-grid-tile', { timeout: 10000 });
+  test('should browse products and view product details', async () => {
+    const productCount = await homePage.getProductCount();
+    expect(productCount).toBeGreaterThan(0);
     
-    const products = page.locator('.mat-grid-tile');
-    await expect(products.first()).toBeVisible();
+    await homePage.clickFirstProduct();
     
-    await products.first().click();
-    await expect(page.locator('mat-dialog-container').first()).toBeVisible({ timeout: 5000 });
+    const dialogVisible = await homePage.isProductDialogVisible();
+    expect(dialogVisible).toBeTruthy();
   });
 
   test('should navigate to basket page', async ({ page }) => {
-    await page.goto('/basket');
-    await page.waitForLoadState('networkidle');
+    await homePage.navigateToBasket();
     
-    await expect(page).toHaveURL(/\/basket/);
+    const isOnBasket = await homePage.isOnBasketPage();
+    expect(isOnBasket).toBeTruthy();
+    
     await expect(page.locator('h1, mat-card').first()).toBeVisible({ timeout: 5000 });
   });
 
-  test('should display products on homepage', async ({ page }) => {
-    await page.waitForSelector('.mat-grid-tile', { timeout: 10000 });
-    
-    const productCount = await page.locator('.mat-grid-tile').count();
+  test('should display products on homepage', async () => {
+    const productCount = await homePage.getProductCount();
     expect(productCount).toBeGreaterThan(0);
   });
 });

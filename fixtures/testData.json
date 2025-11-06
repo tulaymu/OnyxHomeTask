@@ -1,0 +1,22 @@
+{
+  "validUser": {
+    "email": "testuser@juice-sh.op",
+    "password": "Password123!"
+  },
+  "invalidUser": {
+    "email": "invalid@test.com",
+    "password": "wrongpassword"
+  },
+  "products": {
+    "appleJuice": {
+      "id": 1,
+      "name": "Apple Juice (1000ml)",
+      "searchTerm": "apple"
+    }
+  },
+  "securityQuestion": {
+    "id": 1,
+    "question": "Your eldest siblings middle name?",
+    "answer": "test"
+  }
+}

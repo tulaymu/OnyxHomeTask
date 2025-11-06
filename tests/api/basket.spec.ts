@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { createUserAndGetToken } from '../helpers/auth-helper';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -7,36 +8,9 @@ let basketId: number;
 
 test.describe('Basket API', () => {
   test.beforeAll(async ({ request }) => {
-    const email = `test-${Date.now()}@juice-sh.op`;
-    const password = 'Password123!';
-    
-    const registerResponse = await request.post(`${BASE_URL}/api/Users`, {
-      data: {
-        email: email,
-        password: password,
-        passwordRepeat: password,
-        securityQuestion: {
-          id: 1,
-          question: "Your eldest siblings middle name?",
-          createdAt: "2024-01-01",
-          updatedAt: "2024-01-01"
-        },
-        securityAnswer: "test"
-      }
-    });
-    
-    const loginResponse = await request.post(`${BASE_URL}/rest/user/login`, {
-      data: {
-        email: email,
-        password: password
-      }
-    });
-    
-    expect(loginResponse.status()).toBe(200);
-    
-    const loginData = await loginResponse.json();
-    authToken = loginData.authentication.token;
-    basketId = loginData.authentication.bid;
+    const auth = await createUserAndGetToken(request);
+    authToken = auth.token;
+    basketId = auth.basketId;
   });
 
   test('should retrieve basket items', async ({ request }) => {
